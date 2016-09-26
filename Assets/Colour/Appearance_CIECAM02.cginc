@@ -1,5 +1,5 @@
-#include "../Adaptation/CAT.cginc"
-#include "../Utilities/Common.cginc"
+#include "Adaptation_CAT.cginc"
+#include "Utilities_Common.cginc"
 
 struct CIECAM02_InductionFactors
 {
@@ -19,11 +19,6 @@ static const CIECAM02_InductionFactors CIECAM02_VIEWING_CONDITIONS_DIM = {
 static const CIECAM02_InductionFactors CIECAM02_VIEWING_CONDITIONS_DARK = {
     0.8, 0.525, 0.8
 };
-
-static const CIECAM02_InductionFactors CIECAM02_VIEWING_CONDITIONS[3] = {
-	CIECAM02_VIEWING_CONDITIONS_AVERAGE, 
-	CIECAM02_VIEWING_CONDITIONS_DIM, 
-	CIECAM02_VIEWING_CONDITIONS_DARK};
 
 struct CIECAM02_Specification
 {
@@ -98,18 +93,16 @@ float3 full_chromatic_adaptation_forward(float3 RGB, float3 RGB_w, float Y_w, fl
 }
 
 float3 full_chromatic_adaptation_reverse(float3 RGB, float3 RGB_w, float Y_w, float D) {
-    float3 RGB_c = ((Y_w * D / RGB_w) + 1.0 - D) * RGB;
+    float3 RGB_c = RGB / (Y_w * (D / RGB_w) + 1.0 - D);
 
     return RGB_c;
 }
 
 float3 RGB_to_rgb(float3 RGB) {
-	// TODO: Check operations order correctness.
 	return mul(mul(XYZ_TO_HPE_MATRIX, CAT02_INVERSE_CAT), RGB);
 }
 
 float3 rgb_to_RGB(float3 rgb) {
-	// TODO: Check operations order correctness.
 	return mul(mul(CAT02_CAT, HPE_TO_XYZ_MATRIX), rgb);
 }
 
@@ -128,7 +121,7 @@ float3 post_adaptation_non_linear_response_compression_reverse(float3 RGB, float
 }
 
 float2 opponent_colour_dimensions_forward(float3 RGB) {
-	float a = RGB.r - 12.0 * RGB.g / 11.0 + RGB.b / 11.0;
+	float a = RGB.r - (12.0 * RGB.g / 11.0) + (RGB.b / 11.0);
 	float b = (RGB.r + RGB.g - 2.0 * RGB.b) / 9.0;
 
 	return float2(a, b);
@@ -325,7 +318,7 @@ CIECAM02_Specification XYZ_to_CIECAM02(float3 XYZ,
  
     // Converting to preliminary cartesian coordinates.
     float2 ab = opponent_colour_dimensions_forward(RGB_a);
-    
+
     // Computing the *hue* angle :math:`h`.
     float h = hue_angle(ab);
 
@@ -335,7 +328,7 @@ CIECAM02_Specification XYZ_to_CIECAM02(float3 XYZ,
 
     // Computing eccentricity factor *e_t*.
     float e_t = eccentricity_factor(h);
- 
+
     // Computing achromatic responses for the stimulus and the whitepoint.
     float A = achromatic_response_forward(RGB_a, N_bb);
     float A_w = achromatic_response_forward(RGB_aw, N_bb);
@@ -419,7 +412,7 @@ float3 CIECAM02_to_XYZ(float J,
     // Computing post-adaptation non linear response compression matrix.
     float3 RGB_a = post_adaptation_non_linear_response_compression_matrix(
         P_n.g, ab);
-
+ 
     // Applying reverse post-adaptation non linear response compression.
     float3 RGB_p = post_adaptation_non_linear_response_compression_reverse(
         RGB_a, F_L);
