@@ -5,21 +5,19 @@
 		[Header(CIECAM02)] _Image ("Image", 2D) = "white" {}
 
 		// [HDR] Color seems to be clamping / messing with input.
-		[Header(Reference Viewing Conditions)]  _X_w ("Reference White (X)", Range (0.1, 1000)) = 95.05
-		_Y_w ("Reference White (Y)", Range (0.1, 1000)) = 100.00
-		_Z_w ("Reference White (Z)", Range (0.1, 1000)) = 108.88
-		_L_A ("Adapting Field Absolute Luminance", Range (0.1, 1000)) = 318.31
-		_Y_b ("Background Relative Luminance", Range (0.1, 100)) = 20.0
+		[Header(Reference Viewing Conditions)]  _X_w ("XYZ_w (X))", Range (50, 150)) = 95.05
+		_Y_w ("XYZ_w (Y)", Range (50, 150)) = 100.00
+		_Z_w ("XYZ_w (Z)", Range (50, 150)) = 108.88
+		_L_A ("L_A", Range (0.01, 10000)) = 318.31
+		_Y_b ("Y_b", Range (0.01, 100)) = 20.0
 		[KeywordEnum(Average, Dim, Dark)] _Surround("Surround", Int) = 0
 
-		[Header(Test Viewing Conditions)] [HDR] _X_w_v ("Reference White (X)", Range (0.1, 1000)) = 95.05
-		_Y_w_v ("Reference White (Y)", Range (0.1, 1000)) = 100.00
-		_Z_w_v ("Reference White (Z)", Range (0.1, 1000)) = 108.88
-		_L_A_v ("Adapting Field Absolute Luminance", Range (0.1, 1000)) = 318.31
-		_Y_b_v ("Background Relative Luminance", Range (0.1, 100)) = 20.0
+		[Header(Test Viewing Conditions)] [HDR] _X_w_v ("XYZ_w (X)", Range (50, 150)) = 95.05
+		_Y_w_v ("XYZ_w (Y)", Range (50, 150)) = 100.00
+		_Z_w_v ("XYZ_w (Z)", Range (50, 150)) = 108.88
+		_L_A_v ("L_A", Range (0.01, 10000)) = 318.31
+		_Y_b_v ("Y_b", Range (0.01, 100)) = 20.0
 		[KeywordEnum(Average, Dim, Dark)] _Surround_v("Surround", Int) = 0
-
-		[Header(Miscellaneous)][HDR] _Sampler ("Sampler", Color) = (0.0, 0.0, 0.0, 1.0)
 	}
 	SubShader
 	{
