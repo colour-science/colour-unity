@@ -49,23 +49,31 @@ public class CIECAM02_UI : MonoBehaviour {
 	};
 		
 	void Start () {
-		_SetDefaults ();
+		SetDefaults ();
 	}
 
 	void Update () {
 	
 	}
 
-	private void _SetDefaults () {
-		GameObject.Find("Illuminants_Dropdown").GetComponent<Dropdown>().value = 6;
-		GameObject.Find("L_A_Text").GetComponent<Text>().text = "318";
+	public void SetDefaults () {
+		// Moroney, N. (n.d.). Usage guidelines for CIECAM97s. Defaults for *sRGB* viewing conditions,
+		// assuming 64 lux ambient / 80 cd/m2 CRT and D65 as whitepoint.
+		GameObject.Find("Illuminant_Dropdown").GetComponent<Dropdown>().value = 6;
+		GameObject.Find("L_A_Slider").GetComponent<Slider>().value = 4;
+		GameObject.Find("L_A_Text").GetComponent<Text>().text = "4";
+		GameObject.Find("Y_b_Slider").GetComponent<Slider>().value = 20;
 		GameObject.Find("Y_b_Text").GetComponent<Text>().text = "20";
 		GameObject.Find("Surround_Dropdown").GetComponent<Dropdown>().value = 0;
+		GameObject.Find("DiscountIlluminant_Toggle").GetComponent<Toggle>().isOn = false;
 
-		GameObject.Find("Illuminants_v_Dropdown").GetComponent<Dropdown>().value = 6;
-		GameObject.Find("L_A_v_Text").GetComponent<Text>().text = "318";
+		GameObject.Find("Illuminant_v_Dropdown").GetComponent<Dropdown>().value = 6;
+		GameObject.Find("L_A_v_Slider").GetComponent<Slider>().value = 4;
+		GameObject.Find("L_A_v_Text").GetComponent<Text>().text = "4";
+		GameObject.Find("Y_b_v_Slider").GetComponent<Slider>().value = 20;
 		GameObject.Find("Y_b_v_Text").GetComponent<Text>().text = "20";
 		GameObject.Find("Surround_v_Dropdown").GetComponent<Dropdown>().value = 0;
+		GameObject.Find("DiscountIlluminant_v_Toggle").GetComponent<Toggle>().isOn = false;
 	}
 
 	private Material _GetCIECAM02Material () {
@@ -89,7 +97,11 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_Surround(int value) {
-		_GetCIECAM02Material ().SetInt("_Surround", value);
+		_GetCIECAM02Material ().SetInt("_surround", value);
+	}
+
+	public void Set_DiscountIlluminant(bool value) {
+		_GetCIECAM02Material ().SetInt("_discount_illuminant", value ? 1 : 0);
 	}
 
 	public void SetIlluminant_v(int value) {
@@ -109,6 +121,10 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_Surround_v(int value) {
-		_GetCIECAM02Material ().SetInt("_Surround_v", value);
+		_GetCIECAM02Material ().SetInt("_surround_v", value);
+	}
+
+	public void Set_DiscountIlluminant_v(bool value) {
+		_GetCIECAM02Material ().SetInt("_discount_illuminant_v", value ? 1 : 0);
 	}
 }
