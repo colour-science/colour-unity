@@ -2,12 +2,6 @@
 using System.Collections;
 
 public class FitToCamera : MonoBehaviour {
-
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
 	void Update () {
 		transform.localScale = Vector3.one;
 	

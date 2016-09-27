@@ -4,18 +4,19 @@
 	{
 		[Header(CIECAM02)] _Image ("Image", 2D) = "white" {}
 
-		// [HDR] Color seems to be clamping / messing with input.
+		// NOTE: *[HDR] Color* seems to be clamping / messing with input, using *Range* instead.
 		[Header(Reference Viewing Conditions)]  _X_w ("XYZ_w (X))", Range (50, 150)) = 95.05
 		_Y_w ("XYZ_w (Y)", Range (50, 150)) = 100.00
 		_Z_w ("XYZ_w (Z)", Range (50, 150)) = 108.88
-		_L_A ("L_A", Range (0.01, 10000)) = 318.31
+		_L_A ("L_A", Range (0.01, 1000)) = 318.31
 		_Y_b ("Y_b", Range (0.01, 100)) = 20.0
 		[KeywordEnum(Average, Dim, Dark)] _Surround("Surround", Int) = 0
 
+		// NOTE: *[HDR] Color* seems to be clamping / messing with input, using *Range* instead.
 		[Header(Test Viewing Conditions)] [HDR] _X_w_v ("XYZ_w (X)", Range (50, 150)) = 95.05
 		_Y_w_v ("XYZ_w (Y)", Range (50, 150)) = 100.00
 		_Z_w_v ("XYZ_w (Z)", Range (50, 150)) = 108.88
-		_L_A_v ("L_A", Range (0.01, 10000)) = 318.31
+		_L_A_v ("L_A", Range (0.01, 1000)) = 318.31
 		_Y_b_v ("Y_b", Range (0.01, 100)) = 20.0
 		[KeywordEnum(Average, Dim, Dark)] _Surround_v("Surround", Int) = 0
 	}
@@ -77,6 +78,7 @@
 			{
 				fixed4 RGB = tex2D(_Image, i.uv);
 				float3 XYZ = mul(sRGB_TO_XYZ_MATRIX, RGB.rgb) * 100.0;
+
 				// float3 XYZ = {19.01, 20.00, 21.78};
 
 				CIECAM02_InductionFactors I_F;
@@ -108,7 +110,7 @@
 
 				float3 RGB_v = mul(XYZ_TO_sRGB_MATRIX, XYZ_v / 100.0);
 
-				return float4(RGB_v, 1.0);
+				return float4(oetf_sRGB(RGB_v), 1.0);
 			}
 			ENDCG
 		}

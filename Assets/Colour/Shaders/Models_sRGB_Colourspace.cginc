@@ -11,3 +11,16 @@ static const float3x3 XYZ_TO_sRGB_MATRIX = {
     -0.968930714729320, 1.875756060885241, 0.041517523842954,
      0.055710120445511, -0.204021050598487, 1.056995942254388
 };
+
+float oetf_sRGB_scalar(float L) {
+	float V = 1.055 * (pow(L, 1.0 / 2.4)) - 0.055;
+
+	if (L <= 0.0031308)
+		V = L * 12.92;
+
+	return V;
+}
+
+float3 oetf_sRGB(float3 L) {
+	return float3(oetf_sRGB_scalar(L.r), oetf_sRGB_scalar(L.g), oetf_sRGB_scalar(L.b));
+}
