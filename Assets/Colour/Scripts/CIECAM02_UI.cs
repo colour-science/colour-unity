@@ -3,7 +3,11 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class CIECAM02_UI : MonoBehaviour {
-
+	//	for name, illuminant in sorted(colour.ILLUMINANTS_RELATIVE_SPDS.items()):
+	//		XYZ = colour.spectral_to_XYZ(illuminant)
+	//			XYZ /= XYZ[1]
+	//
+	//			print(name, XYZ * 100)
 	private Vector3[] ILLUMINANTS_CIE_1931_2_DEGREE_STANDARD_OBSERVER = new [] {
 		new Vector3(109.849538150881216f, 100.000000000000000f, 35.585111923478621f), // A
 		new Vector3(99.087202067314152f, 100.000000000000000f, 85.312962145590404f), // B
@@ -60,24 +64,28 @@ public class CIECAM02_UI : MonoBehaviour {
 		// Moroney, N. (n.d.). Usage guidelines for CIECAM97s. Defaults for *sRGB* viewing conditions,
 		// assuming 64 lux ambient / 80 cd/m2 CRT and D65 as whitepoint.
 		GameObject.Find("Illuminant_Dropdown").GetComponent<Dropdown>().value = 6;
-		GameObject.Find("L_A_Slider").GetComponent<Slider>().value = 4;
-		GameObject.Find("L_A_Text").GetComponent<Text>().text = "4";
-		GameObject.Find("Y_b_Slider").GetComponent<Slider>().value = 20;
-		GameObject.Find("Y_b_Text").GetComponent<Text>().text = "20";
+		GameObject.Find("XYZ_w_Scale_Slider").GetComponent<Slider>().value = 1.0f;
+		GameObject.Find("XYZ_w_Scale_Text").GetComponent<Text>().text = "1.0";
+		GameObject.Find("L_A_Slider").GetComponent<Slider>().value = 4.0f;
+		GameObject.Find("L_A_Text").GetComponent<Text>().text = "4.0";
+		GameObject.Find("Y_b_Slider").GetComponent<Slider>().value = 20.0f;
+		GameObject.Find("Y_b_Text").GetComponent<Text>().text = "20.0";
 		GameObject.Find("Surround_Dropdown").GetComponent<Dropdown>().value = 0;
 		GameObject.Find("DiscountIlluminant_Toggle").GetComponent<Toggle>().isOn = false;
 
 		GameObject.Find("Illuminant_v_Dropdown").GetComponent<Dropdown>().value = 6;
-		GameObject.Find("L_A_v_Slider").GetComponent<Slider>().value = 4;
-		GameObject.Find("L_A_v_Text").GetComponent<Text>().text = "4";
-		GameObject.Find("Y_b_v_Slider").GetComponent<Slider>().value = 20;
-		GameObject.Find("Y_b_v_Text").GetComponent<Text>().text = "20";
+		GameObject.Find("XYZ_w_v_Scale_Slider").GetComponent<Slider>().value = 1.0f;
+		GameObject.Find("XYZ_w_v_Scale_Text").GetComponent<Text>().text = "1.0";
+		GameObject.Find("L_A_v_Slider").GetComponent<Slider>().value = 4.0f;
+		GameObject.Find("L_A_v_Text").GetComponent<Text>().text = "4.0";
+		GameObject.Find("Y_b_v_Slider").GetComponent<Slider>().value = 20.0f;
+		GameObject.Find("Y_b_v_Text").GetComponent<Text>().text = "20.0";
 		GameObject.Find("Surround_v_Dropdown").GetComponent<Dropdown>().value = 0;
 		GameObject.Find("DiscountIlluminant_v_Toggle").GetComponent<Toggle>().isOn = false;
 	}
 
 	private Material _GetCIECAM02Material () {
-		return GameObject.Find("CIECAM02_ImageViewer").GetComponent<Renderer>().sharedMaterial;
+		return GameObject.Find("CIECAM02_Viewer").GetComponent<Renderer>().sharedMaterial;
 	}
 
 	public void SetIlluminant(int value) {
@@ -86,6 +94,10 @@ public class CIECAM02_UI : MonoBehaviour {
 		material.SetFloat("_X_w", XYZ[0]);
 		material.SetFloat("_Y_w", XYZ[1]);
 		material.SetFloat("_Z_w", XYZ[2]);
+	}
+
+	public void Set_XYZ_w_scale(float value) {
+		_GetCIECAM02Material ().SetFloat("_XYZ_w_scale", value);
 	}
 
 	public void Set_L_A(float value) {
@@ -110,6 +122,10 @@ public class CIECAM02_UI : MonoBehaviour {
 		material.SetFloat("_X_w_v", XYZ[0]);
 		material.SetFloat("_Y_w_v", XYZ[1]);
 		material.SetFloat("_Z_w_v", XYZ[2]);
+	}
+
+	public void Set_XYZ_w_v_scale(float value) {
+		_GetCIECAM02Material ().SetFloat("_XYZ_w_v_scale", value);
 	}
 
 	public void Set_L_A_v(float value) {

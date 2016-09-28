@@ -24,3 +24,16 @@ float oetf_sRGB_scalar(float L) {
 float3 oetf_sRGB(float3 L) {
 	return float3(oetf_sRGB_scalar(L.r), oetf_sRGB_scalar(L.g), oetf_sRGB_scalar(L.b));
 }
+
+float eotf_sRGB_scalar(float V) {
+	float L = pow((V + 0.055) / 1.055, 2.4);
+
+	if (V <= oetf_sRGB_scalar(0.0031308))
+		L = V / 12.92;
+
+	return L;
+}
+
+float3 eotf_sRGB(float3 V) {
+	return float3(oetf_sRGB_scalar(V.r), oetf_sRGB_scalar(V.g), oetf_sRGB_scalar(V.b));
+}

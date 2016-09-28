@@ -11,6 +11,7 @@
 		[Header(Reference Viewing Conditions)]  _X_w ("XYZ_w (X))", Range (50, 150)) = 95.046505745082385
 		_Y_w ("XYZ_w (Y)", Range (50, 150)) = 100.000000000000000
 		_Z_w ("XYZ_w (Z)", Range (50, 150)) = 108.897024100442707
+		_XYZ_w_scale ("XYZ_w Scale", Range (0.1, 100)) = 1.0
 		_L_A ("L_A", Range (0.01, 1000)) = 4.0
 		_Y_b ("Y_b", Range (0.01, 100)) = 20.0
 		[KeywordEnum(Average, Dim, Dark)] _surround("Surround", Int) = 0
@@ -20,6 +21,7 @@
 		[Header(Test Viewing Conditions)] [HDR] _X_w_v ("XYZ_w (X)", Range (50, 150)) = 95.046505745082385
 		_Y_w_v ("XYZ_w (Y)", Range (50, 150)) = 100.000000000000000
 		_Z_w_v ("XYZ_w (Z)", Range (50, 150)) = 108.897024100442707
+		_XYZ_w_v_scale ("XYZ_w Scale", Range (0.1, 100)) = 1.0
 		_L_A_v ("L_A", Range (0.01, 1000)) = 4.0
 		_Y_b_v ("Y_b", Range (0.01, 100)) = 20.0
 		[KeywordEnum(Average, Dim, Dark)] _surround_v("Surround", Int) = 0
@@ -59,6 +61,7 @@
 			float _X_w;
 			float _Y_w;
 			float _Z_w;
+			float _XYZ_w_scale;
 			float _L_A;
 			float _Y_b;
 			float _surround;
@@ -67,6 +70,7 @@
 			float _X_w_v;
 			float _Y_w_v;
 			float _Z_w_v;
+			float _XYZ_w_v_scale;
 			float _L_A_v;
 			float _Y_b_v;
 			float _surround_v;
@@ -83,7 +87,7 @@
 			
 			float4 frag (v2f i) : SV_Target
 			{
-				fixed4 RGB = tex2D(_Image, i.uv);
+				float4 RGB = tex2D(_Image, i.uv);
 				float3 XYZ = mul(sRGB_TO_XYZ_MATRIX, RGB.rgb) * 100.0;
 
 				// CIECAM02 forward model.
@@ -96,7 +100,7 @@
 					I_F = CIECAM02_VIEWING_CONDITIONS_DARK;
 
 				CIECAM02_Specification specification = XYZ_to_CIECAM02(
-					XYZ, float3(_X_w, _Y_w, _Z_w), _L_A, _Y_b, I_F, 
+					XYZ, float3(_X_w, _Y_w, _Z_w) * _XYZ_w_scale, _L_A, _Y_b, I_F, 
 					bool(_discount_illuminant));
 
 				// CIECAM02 reverse model.
@@ -110,7 +114,7 @@
 
 				float3 XYZ_v = CIECAM02_to_XYZ(
 					specification.J, specification.C, specification.h, 
-					float3(_X_w_v, _Y_w_v, _Z_w_v), _L_A_v, _Y_b_v, I_F_v, 
+					float3(_X_w_v, _Y_w_v, _Z_w_v) * _XYZ_w_v_scale, _L_A_v, _Y_b_v, I_F_v, 
 					bool(_discount_illuminant_v));
 
 				float3 RGB_v = mul(XYZ_TO_sRGB_MATRIX, XYZ_v / 100.0);
