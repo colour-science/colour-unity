@@ -65,21 +65,21 @@ public class CIECAM02_UI : MonoBehaviour {
 		// assuming 64 lux ambient / 80 cd/m2 CRT and D65 as whitepoint.
 		GameObject.Find("Illuminant_Dropdown").GetComponent<Dropdown>().value = 6;
 		GameObject.Find("XYZ_w_Scale_Slider").GetComponent<Slider>().value = 1.0f;
-		GameObject.Find("XYZ_w_Scale_Text").GetComponent<Text>().text = "1.0";
+		GameObject.Find("XYZ_w_Scale_InputField").GetComponent<InputField>().text = "1.0";
 		GameObject.Find("L_A_Slider").GetComponent<Slider>().value = 4.0f;
-		GameObject.Find("L_A_Text").GetComponent<Text>().text = "4.0";
+		GameObject.Find("L_A_InputField").GetComponent<InputField>().text = "4.0";
 		GameObject.Find("Y_b_Slider").GetComponent<Slider>().value = 20.0f;
-		GameObject.Find("Y_b_Text").GetComponent<Text>().text = "20.0";
+		GameObject.Find("Y_b_InputField").GetComponent<InputField>().text = "20.0";
 		GameObject.Find("Surround_Dropdown").GetComponent<Dropdown>().value = 0;
 		GameObject.Find("DiscountIlluminant_Toggle").GetComponent<Toggle>().isOn = false;
 
 		GameObject.Find("Illuminant_v_Dropdown").GetComponent<Dropdown>().value = 6;
 		GameObject.Find("XYZ_w_v_Scale_Slider").GetComponent<Slider>().value = 1.0f;
-		GameObject.Find("XYZ_w_v_Scale_Text").GetComponent<Text>().text = "1.0";
+		GameObject.Find("XYZ_w_v_Scale_InputField").GetComponent<InputField>().text = "1.0";
 		GameObject.Find("L_A_v_Slider").GetComponent<Slider>().value = 4.0f;
-		GameObject.Find("L_A_v_Text").GetComponent<Text>().text = "4.0";
+		GameObject.Find("L_A_v_InputField").GetComponent<InputField>().text = "4.0";
 		GameObject.Find("Y_b_v_Slider").GetComponent<Slider>().value = 20.0f;
-		GameObject.Find("Y_b_v_Text").GetComponent<Text>().text = "20.0";
+		GameObject.Find("Y_b_v_InputField").GetComponent<InputField>().text = "20.0";
 		GameObject.Find("Surround_v_Dropdown").GetComponent<Dropdown>().value = 0;
 		GameObject.Find("DiscountIlluminant_v_Toggle").GetComponent<Toggle>().isOn = false;
 	}
