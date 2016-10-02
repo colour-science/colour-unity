@@ -1,14 +1,15 @@
-Shader "Tonemapper/CIECAM02" {
+Shader "CIECAM02_Tonemapper" {
 	Properties {
 		_MainTex ("", 2D) = "black" {}
 
-		_exposure ("Exposure", Range (-10, 10)) = 0
+		[Header(Tonemapper)] [KeywordEnum(Passthrough, Simple)] _tonemapper("Tonemapper", Int) = 0
+		_exposure ("Exposure", Range (-10, 10)) = 0.0
+		_saturation ("Saturation", Range (0, 1)) = 1.0
 
 		// Moroney, N. (n.d.). Usage guidelines for CIECAM97s. Defaults for *sRGB* viewing conditions,
 		// assuming 64 lux ambient / 80 cd/m2 CRT and D65 as whitepoint.
-
 		// NOTE: *[HDR] Color* seems to be clamping / messing with input, using *Range* instead.
-		[Header(Reference Viewing Conditions)]  _X_w ("XYZ_w (X))", Range (50, 150)) = 95.046505745082385
+		[Header(Reference Viewing Conditions)] _X_w ("XYZ_w (X))", Range (50, 150)) = 95.046505745082385
 		_Y_w ("XYZ_w (Y)", Range (50, 150)) = 100.000000000000000
 		_Z_w ("XYZ_w (Z)", Range (50, 150)) = 108.897024100442707
 		_XYZ_w_scale ("XYZ_w Scale", Range (0.1, 100)) = 1.0
@@ -18,7 +19,7 @@ Shader "Tonemapper/CIECAM02" {
 		[Toggle] _discount_illuminant("Discount Illuminant", Int) = 0
 
 		// NOTE: *[HDR] Color* seems to be clamping / messing with input, using *Range* instead.
-		[Header(Test Viewing Conditions)] [HDR] _X_w_v ("XYZ_w (X)", Range (50, 150)) = 95.046505745082385
+		[Header(Test Viewing Conditions)] _X_w_v ("XYZ_w (X)", Range (50, 150)) = 95.046505745082385
 		_Y_w_v ("XYZ_w (Y)", Range (50, 150)) = 100.000000000000000
 		_Z_w_v ("XYZ_w (Z)", Range (50, 150)) = 108.897024100442707
 		_XYZ_w_v_scale ("XYZ_w Scale", Range (0.1, 100)) = 1.0
@@ -31,8 +32,9 @@ Shader "Tonemapper/CIECAM02" {
 	CGINCLUDE
 	
 	#include "UnityCG.cginc"
-	#include "Models_sRGB_Colourspace.cginc"
-	#include "Appearance_CIECAM02.cginc"
+	#include "../Colour/Models_sRGB_Colourspace.cginc"
+	#include "../Colour/Appearance_CIECAM02.cginc"
+	#include "../Colour/Tonemapping_Global_Operators.cginc"
 
 	struct v2f {
 		float4 pos : SV_POSITION;
@@ -42,7 +44,10 @@ Shader "Tonemapper/CIECAM02" {
 	sampler2D _MainTex;
 
 	float4 _MainTex_ST;
+
+	int _tonemapper;
 	float _exposure;
+	float _saturation;
 
 	float _X_w;
 	float _Y_w;
@@ -50,7 +55,7 @@ Shader "Tonemapper/CIECAM02" {
 	float _XYZ_w_scale;
 	float _L_A;
 	float _Y_b;
-	float _surround;
+	int _surround;
 	int _discount_illuminant;
 
 	float _X_w_v;
@@ -59,7 +64,7 @@ Shader "Tonemapper/CIECAM02" {
 	float _XYZ_w_v_scale;
 	float _L_A_v;
 	float _Y_b_v;
-	float _surround_v;
+	int _surround_v;
 	int _discount_illuminant_v;
 
 	v2f vert( appdata_img v ) 
@@ -74,7 +79,16 @@ Shader "Tonemapper/CIECAM02" {
 	{
 		float4 RGBA = tex2D(_MainTex, UnityStereoScreenSpaceUVAdjust(i.uv, _MainTex_ST));
 
-		float3 XYZ = mul(sRGB_TO_XYZ_MATRIX, RGBA.rgb) * 100.0;
+		// Exposure adjustment.
+		float3 RGB = RGBA.rgb * pow(2, _exposure);
+
+		// Tonemapper.
+		if (_tonemapper == 1)
+			RGB = tonemapping_operator_simple(RGB);
+		if (_tonemapper == 2)
+			RGB = tonemapping_operator_simple_luminance(RGB, _saturation);
+
+		float3 XYZ = mul(sRGB_TO_XYZ_MATRIX, RGB) * 100.0;
 
 		// CIECAM02 forward model.
 		CIECAM02_InductionFactors I_F;
