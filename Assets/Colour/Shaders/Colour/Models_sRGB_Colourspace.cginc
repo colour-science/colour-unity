@@ -35,5 +35,5 @@ float eotf_sRGB_scalar(float V) {
 }
 
 float3 eotf_sRGB(float3 V) {
-	return float3(oetf_sRGB_scalar(V.r), oetf_sRGB_scalar(V.g), oetf_sRGB_scalar(V.b));
+	return float3(eotf_sRGB_scalar(V.r), eotf_sRGB_scalar(V.g), eotf_sRGB_scalar(V.b));
 }

@@ -71,7 +71,7 @@ float4 viewing_condition_dependent_parameters(float Y_b, float Y_w, float L_A) {
 
     float n = Y_b / Y_w;
     float F_L = luminance_level_adaptation_factor(L_A);
-    // NOTE: We deviate from reference implementation to fit return data in a float4.
+    // NOTE: We deviate from reference implementation to fit return data into a float4.
     float2 N_bbcb = chromatic_induction_factors(n);
     float z = base_exponential_non_linearity(n);
 

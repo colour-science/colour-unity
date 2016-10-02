@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityStandardAssets.ImageEffects;
 
 public class CIECAM02_UI : MonoBehaviour {
+
 	//	for name, illuminant in sorted(colour.ILLUMINANTS_RELATIVE_SPDS.items()):
 	//		XYZ = colour.spectral_to_XYZ(illuminant)
 	//			XYZ /= XYZ[1]
@@ -85,11 +87,17 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	private Material _GetCIECAM02Material () {
-		return GameObject.Find("CIECAM02_Viewer").GetComponent<Renderer>().sharedMaterial;
+		if (Camera.main.GetComponent<CIECAM02_Tonemapper> () != null)
+			return Camera.main.GetComponent<CIECAM02_Tonemapper> ().material;
+		else
+			return null;
 	}
 
 	public void SetIlluminant(int value) {
 		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+		
 		Vector3 XYZ = ILLUMINANTS_CIE_1931_2_DEGREE_STANDARD_OBSERVER [value];
 		material.SetFloat("_X_w", XYZ[0]);
 		material.SetFloat("_Y_w", XYZ[1]);
@@ -97,27 +105,50 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_XYZ_w_scale(float value) {
-		_GetCIECAM02Material ().SetFloat("_XYZ_w_scale", value);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetFloat("_XYZ_w_scale", value);
 	}
 
 	public void Set_L_A(float value) {
-		_GetCIECAM02Material ().SetFloat("_L_A", value);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetFloat("_L_A", value);
 	}
 
 	public void Set_Y_b(float value) {
-		_GetCIECAM02Material ().SetFloat("_Y_b", value);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetFloat("_Y_b", value);
 	}
 
 	public void Set_Surround(int value) {
-		_GetCIECAM02Material ().SetInt("_surround", value);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetInt("_surround", value);
 	}
 
 	public void Set_DiscountIlluminant(bool value) {
-		_GetCIECAM02Material ().SetInt("_discount_illuminant", value ? 1 : 0);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetInt("_discount_illuminant", value ? 1 : 0);
 	}
 
 	public void SetIlluminant_v(int value) {
 		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
 		Vector3 XYZ = ILLUMINANTS_CIE_1931_2_DEGREE_STANDARD_OBSERVER [value];
 		material.SetFloat("_X_w_v", XYZ[0]);
 		material.SetFloat("_Y_w_v", XYZ[1]);
@@ -125,22 +156,42 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_XYZ_w_v_scale(float value) {
-		_GetCIECAM02Material ().SetFloat("_XYZ_w_v_scale", value);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetFloat("_XYZ_w_v_scale", value);
 	}
 
 	public void Set_L_A_v(float value) {
-		_GetCIECAM02Material ().SetFloat("_L_A_v", value);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetFloat("_L_A_v", value);
 	}
 
 	public void Set_Y_b_v(float value) {
-		_GetCIECAM02Material ().SetFloat("_Y_b_v", value);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetFloat("_Y_b_v", value);
 	}
 
 	public void Set_Surround_v(int value) {
-		_GetCIECAM02Material ().SetInt("_surround_v", value);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetInt("_surround_v", value);
 	}
 
 	public void Set_DiscountIlluminant_v(bool value) {
-		_GetCIECAM02Material ().SetInt("_discount_illuminant_v", value ? 1 : 0);
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetInt("_discount_illuminant_v", value ? 1 : 0);
 	}
 }

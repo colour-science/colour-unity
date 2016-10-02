@@ -10,7 +10,7 @@ public class FitToCamera : MonoBehaviour {
 		float diameter = Mathf.Tan(Mathf.Deg2Rad * Camera.main.fieldOfView / 2.0f) * (2.0f * (float)distance);
 
 		Material material = GetComponent<Renderer>().material;
-		Texture image = material.GetTexture ("_Image");
+		Texture image = material.GetTexture ("_MainTex");
 
 		transform.localScale = new Vector3(diameter * (1.0f / size[0]) * 
 			((float)image.width / (float)image.height), 1.0f, diameter * (1.0f / size[1]));

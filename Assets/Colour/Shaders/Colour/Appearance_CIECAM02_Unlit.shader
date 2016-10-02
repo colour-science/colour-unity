@@ -2,7 +2,7 @@
 {
 	Properties
 	{
-		[Header(CIECAM02)] _Image ("Image", 2D) = "white" {}
+		[Header(CIECAM02)] _MainTex ("Image", 2D) = "white" {}
 
 		// Moroney, N. (n.d.). Usage guidelines for CIECAM97s. Defaults for *sRGB* viewing conditions,
 		// assuming 64 lux ambient / 80 cd/m2 CRT and D65 as whitepoint.
@@ -55,8 +55,8 @@
 				float4 vertex : SV_POSITION;
 			};
 
-			sampler2D _Image;
-			float4 _Image_ST;
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
 
 			float _X_w;
 			float _Y_w;
@@ -80,15 +80,16 @@
 			{
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.uv = TRANSFORM_TEX(v.uv, _Image);
+				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				UNITY_TRANSFER_FOG(o,o.vertex);
 				return o;
 			}
 			
 			float4 frag (v2f i) : SV_Target
 			{
-				float4 RGB = tex2D(_Image, i.uv);
-				float3 XYZ = mul(sRGB_TO_XYZ_MATRIX, RGB.rgb) * 100.0;
+				float4 RGBA = tex2D(_MainTex, i.uv);
+				// Assuming an RGBM input.
+				float3 XYZ = mul(sRGB_TO_XYZ_MATRIX, RGBA.rgb * eotf_sRGB(RGBA.a * 5.0)) * 100.0;
 
 				// CIECAM02 forward model.
 				CIECAM02_InductionFactors I_F;
@@ -119,7 +120,7 @@
 
 				float3 RGB_v = mul(XYZ_TO_sRGB_MATRIX, XYZ_v / 100.0);
 
-				return float4(oetf_sRGB(RGB_v), 1.0);
+				return float4(RGB_v, 1.0);
 			}
 			ENDCG
 		}
