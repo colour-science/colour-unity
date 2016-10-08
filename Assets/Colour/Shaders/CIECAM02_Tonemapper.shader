@@ -1,4 +1,4 @@
-Shader "CIECAM02_Tonemapper" {
+Shader "Camera/CIECAM02_Tonemapper" {
 	Properties {
 		_MainTex ("", 2D) = "black" {}
 
@@ -32,9 +32,8 @@ Shader "CIECAM02_Tonemapper" {
 	CGINCLUDE
 	
 	#include "UnityCG.cginc"
-	#include "../Colour/Models_sRGB_Colourspace.cginc"
-	#include "../Colour/Appearance_CIECAM02.cginc"
-	#include "../Colour/Tonemapping_Global_Operators.cginc"
+	#include "Appearance_CIECAM02.cginc"
+	#include "Tonemapping_Global_Operators.cginc"
 
 	struct v2f {
 		float4 pos : SV_POSITION;
@@ -82,18 +81,18 @@ Shader "CIECAM02_Tonemapper" {
 		// Exposure adjustment.
 		float3 RGB = RGBA.rgb * pow(2, _exposure);
 
-		// Tonemapper.
+		// Apply tonemapper.
 		if (_tonemapper == 1)
 			RGB = tonemapping_operator_simple(RGB);
 		if (_tonemapper == 2)
-			RGB = tonemapping_operator_simple_luminance(RGB, _saturation);
+			RGB = tonemapping_operator_pseudo_ACES_ODT_monitor_100nits_dim(RGB);
+		if (_tonemapper == 3)
+			RGB = tonemapping_operator_pseudo_ACES_ODT_Rec2020_ST2084_1000nits(RGB);
 
 		float3 XYZ = mul(sRGB_TO_XYZ_MATRIX, RGB) * 100.0;
 
 		// CIECAM02 forward model.
-		CIECAM02_InductionFactors I_F;
-		if (_surround == 0)
-			I_F = CIECAM02_VIEWING_CONDITIONS_AVERAGE;
+		CIECAM02_InductionFactors I_F = CIECAM02_VIEWING_CONDITIONS_AVERAGE;
 		if (_surround == 1)
 			I_F = CIECAM02_VIEWING_CONDITIONS_DIM;
 		if (_surround == 2)
@@ -104,9 +103,7 @@ Shader "CIECAM02_Tonemapper" {
 			bool(_discount_illuminant));
 
 		// CIECAM02 reverse model.
-		CIECAM02_InductionFactors I_F_v;
-		if (_surround_v == 0)
-			I_F_v = CIECAM02_VIEWING_CONDITIONS_AVERAGE;
+		CIECAM02_InductionFactors I_F_v = CIECAM02_VIEWING_CONDITIONS_AVERAGE;
 		if (_surround_v == 1)
 			I_F_v = CIECAM02_VIEWING_CONDITIONS_DIM;
 		if (_surround_v == 2)
@@ -119,6 +116,11 @@ Shader "CIECAM02_Tonemapper" {
 
 		float3 RGB_v = mul(XYZ_TO_sRGB_MATRIX, XYZ_v / 100.0);
 
+		if (_tonemapper == 3)
+			// Unity does not expose any mechanism to deactivate the framebuffer *sRGB*
+			// conversion, thus we compensate for it here.
+			RGB_v = eotf_sRGB(oetf_ST2084(mul(sRGB_TO_REC2020_MATRIX, RGB_v), 10000.0));
+	
 		return float4(RGB_v, 1.0);
 	}
 	ENDCG 
