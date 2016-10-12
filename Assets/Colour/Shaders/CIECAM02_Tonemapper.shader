@@ -4,7 +4,9 @@ Shader "Camera/CIECAM02_Tonemapper" {
 
 		[Header(Tonemapper)] [KeywordEnum(Passthrough, Simple)] _tonemapper("Tonemapper", Int) = 0
 		_exposure ("Exposure", Range (-10, 10)) = 0.0
+		_crosstalk ("Crosstalk", Range (0, 1)) = 1.0
 		_saturation ("Saturation", Range (0, 1)) = 1.0
+		_crosstalk_saturation ("Crosstalk Saturation", Range (0, 1)) = 1.0
 
 		// Moroney, N. (n.d.). Usage guidelines for CIECAM97s. Defaults for *sRGB* viewing conditions,
 		// assuming 64 lux ambient / 80 cd/m2 CRT and D65 as whitepoint.
@@ -46,7 +48,9 @@ Shader "Camera/CIECAM02_Tonemapper" {
 
 	int _tonemapper;
 	float _exposure;
+	float _crosstalk;
 	float _saturation;
+	float _crosstalk_saturation;
 
 	float _X_w;
 	float _Y_w;
@@ -85,8 +89,10 @@ Shader "Camera/CIECAM02_Tonemapper" {
 		if (_tonemapper == 1)
 			RGB = tonemapping_operator_simple(RGB);
 		if (_tonemapper == 2)
-			RGB = tonemapping_operator_pseudo_ACES_ODT_monitor_100nits_dim(RGB);
+			RGB = tonemapping_operator_simple_max(RGB, _crosstalk, _saturation, _crosstalk_saturation);
 		if (_tonemapper == 3)
+			RGB = tonemapping_operator_pseudo_ACES_ODT_monitor_100nits_dim(RGB);
+		if (_tonemapper == 4)
 			RGB = tonemapping_operator_pseudo_ACES_ODT_Rec2020_ST2084_1000nits(RGB);
 
 		float3 XYZ = mul(sRGB_TO_XYZ_MATRIX, RGB) * 100.0;
@@ -116,7 +122,7 @@ Shader "Camera/CIECAM02_Tonemapper" {
 
 		float3 RGB_v = mul(XYZ_TO_sRGB_MATRIX, XYZ_v / 100.0);
 
-		if (_tonemapper == 3)
+		if (_tonemapper == 4)
 			// Unity does not expose any mechanism to deactivate the framebuffer *sRGB*
 			// conversion, thus we compensate for it here.
 			RGB_v = eotf_sRGB(oetf_ST2084(mul(sRGB_TO_REC2020_MATRIX, RGB_v), 10000.0));

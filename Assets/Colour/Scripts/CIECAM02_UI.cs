@@ -66,9 +66,13 @@ public class CIECAM02_UI : MonoBehaviour {
 		GameObject.Find("Tonemapper_Dropdown").GetComponent<Dropdown>().value = 0;
 		GameObject.Find("Exposure_Slider").GetComponent<Slider>().value = 0.0f;
 		GameObject.Find("Exposure_InputField").GetComponent<InputField>().text = "0.0";
+		GameObject.Find("Crosstalk_Slider").GetComponent<Slider>().value = 1.0f;
+		GameObject.Find("Crosstalk_InputField").GetComponent<InputField>().text = "1.0";
 		GameObject.Find("Saturation_Slider").GetComponent<Slider>().value = 1.0f;
 		GameObject.Find("Saturation_InputField").GetComponent<InputField>().text = "1.0";
-
+		GameObject.Find("CrosstalkSaturation_Slider").GetComponent<Slider>().value = 1.0f;
+		GameObject.Find("CrosstalkSaturation_InputField").GetComponent<InputField>().text = "1.0";
+	
 		// Moroney, N. (n.d.). Usage guidelines for CIECAM97s. Defaults for *sRGB* viewing conditions,
 		// assuming 64 lux ambient / 80 cd/m2 CRT and D65 as whitepoint.
 		GameObject.Find("Illuminant_Dropdown").GetComponent<Dropdown>().value = 6;
@@ -115,12 +119,28 @@ public class CIECAM02_UI : MonoBehaviour {
 		material.SetFloat("_exposure", value);
 	}
 
+	public void Set_crosstalk(float value) {
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetFloat("_crosstalk", value);
+	}
+
 	public void Set_saturation(float value) {
 		Material material = _GetCIECAM02Material ();
 		if (material == null)
 			return;
 
 		material.SetFloat("_saturation", value);
+	}
+
+	public void Set_crosstalk_saturation(float value) {
+		Material material = _GetCIECAM02Material ();
+		if (material == null)
+			return;
+
+		material.SetFloat("_crosstalk_saturation", value);
 	}
 
 	public void SetIlluminant(int value) {

@@ -4,11 +4,13 @@ float3 tonemapping_operator_simple(float3 RGB) {
 	return RGB / (RGB + 1.0);
 }
 
-float3 tonemapping_operator_simple_luminance(float3 RGB, float s) {
-	float luminance = Luminance(RGB); 
-	float luminance_t = luminance / (1 + luminance);
+float3 tonemapping_operator_simple_max(float3 RGB, float crosstalk, float saturation, float crosstalk_saturation) {
+	float peak = max(max(RGB.r, RGB.g), RGB.b); 
+	float3 ratio = RGB / peak;
 
-	return pow(RGB / luminance, s) * luminance_t;
+	peak = peak / (peak + 1.0);
+
+	return ratio * peak;
 }
 
 float3 tonemapping_operator_pseudo_ACES_ODT_monitor_100nits_dim(float3 RGB) {
