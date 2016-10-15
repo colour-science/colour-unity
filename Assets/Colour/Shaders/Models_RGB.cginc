@@ -38,21 +38,35 @@ float3 eotf_sRGB(float3 V) {
 	return float3(eotf_sRGB_scalar(V.r), eotf_sRGB_scalar(V.g), eotf_sRGB_scalar(V.b));
 }
 
-// *sRGB* to *ACEScg* matrix computed using *CAT02* chromatic adaptation transform..
-static const float3x3 sRGB_TO_ACESCG_MATRIX = {
+// *sRGB* to *ACEScg* matrix computed using *CAT02* chromatic adaptation transform.
+static const float3x3 sRGB_TO_ACES_CG_MATRIX = {
     0.613117812906440, 0.341181995855625, 0.045787344282337,
     0.069934082307513, 0.918103037508581, 0.011932775530201,
     0.020462992637737, 0.106768663382511, 0.872715910619442
 };
 
-// *ACEScg* to *sRGB* matrix computed using *CAT02* chromatic adaptation transform..
-static const float3x3 ACESCG_TO_sRGB_MATRIX = {
+// *ACEScg* to *sRGB* matrix computed using *CAT02* chromatic adaptation transform.
+static const float3x3 ACES_CG_TO_sRGB_MATRIX = {
     1.704887331049503, -0.624157274479025, -0.080886773895704,
     -0.129520935348888, 1.138399326040076, -0.008779241755018,
     -0.024127059936902, -0.124620612286390, 1.148822109913262
 };
 
-// *sRGB* to *Rec. 2020* matrix computed using *CAT02* chromatic adaptation transform..
+// *sRGB* to *ACES 2065-1* matrix computed using *CAT02* chromatic adaptation transform.
+static const float3x3 sRGB_TO_ACES_2065_1_MATRIX = {
+	0.439585644154173, 0.383929403013798, 0.176532736365944,
+    0.089539573517554, 0.814749835091447, 0.095683606092672,
+    0.017387183243411, 0.108739114321481, 0.873820587613957
+};
+
+// *ACES 2065-1* to *sRGB* matrix computed using *CAT02* chromatic adaptation transform.
+static const float3x3 ACES_2065_1_TO_sRGB_MATRIX = {
+	2.521649429843306, -1.136888554222259, -0.384917593194445,
+    -0.275213551244026, 1.369705151026325, -0.094392450776520,
+    -0.015925010090464, -0.147806368110800, 1.163805815942430
+};
+
+// *sRGB* to *Rec. 2020* matrix computed using *CAT02* chromatic adaptation transform.
 static const float3x3 sRGB_TO_REC2020_MATRIX = {
     0.627441372057978, 0.329297459521909, 0.043351458394495,
     0.069027617147078, 0.919580666887028, 0.011361422575401,

@@ -41,10 +41,10 @@ Shader "Camera/CIECAM02_Tonemapper" {
 		float4 pos : SV_POSITION;
 		float2 uv : TEXCOORD0;
 	};
-	
-	sampler2D _MainTex;
 
-	float4 _MainTex_ST;
+	// Defined in "ThirdParty_Unity_Common.cginc".
+	 sampler2D _MainTex;
+	 float4 _MainTex_ST;
 
 	int _tonemapper;
 	float _exposure;
