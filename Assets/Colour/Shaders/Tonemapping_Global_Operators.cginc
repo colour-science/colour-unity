@@ -4,7 +4,7 @@ float3 tonemapping_operator_simple(float3 RGB) {
 	return RGB / (RGB + 1.0);
 }
 
-float3 tonemapping_operator_simple_max(float3 RGB, float crosstalk, float saturation, float crosstalk_saturation) {
+float3 tonemapping_operator_simple_max(float3 RGB) {
 	float peak = max(max(RGB.r, RGB.g), RGB.b);
 	float3 ratio = RGB / peak;
 

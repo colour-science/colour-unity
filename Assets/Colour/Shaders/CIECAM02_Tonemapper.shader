@@ -42,15 +42,11 @@ Shader "Camera/CIECAM02_Tonemapper" {
 		float2 uv : TEXCOORD0;
 	};
 
-	// Defined in "ThirdParty_Unity_Common.cginc".
-	 sampler2D _MainTex;
-	 float4 _MainTex_ST;
+	sampler2D _MainTex;
+	float4 _MainTex_ST;
 
 	int _tonemapper;
 	float _exposure;
-	float _crosstalk;
-	float _saturation;
-	float _crosstalk_saturation;
 
 	float _X_w;
 	float _Y_w;
@@ -89,7 +85,7 @@ Shader "Camera/CIECAM02_Tonemapper" {
 		if (_tonemapper == 1)
 			RGB = tonemapping_operator_simple(RGB);
 		if (_tonemapper == 2)
-			RGB = tonemapping_operator_simple_max(RGB, _crosstalk, _saturation, _crosstalk_saturation);
+			RGB = tonemapping_operator_simple_max(RGB);
 		if (_tonemapper == 3)
 			RGB = tonemapping_operator_pseudo_ACES_ODT_monitor_100nits_dim(RGB);
 		if (_tonemapper == 4)
