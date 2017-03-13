@@ -1,4 +1,4 @@
-Shader "Camera/CIECAM02_Tonemapper" {
+Shader "Camera/CIECAM02 Tonemapper" {
 	Properties {
 		_MainTex ("", 2D) = "black" {}
 
@@ -34,8 +34,8 @@ Shader "Camera/CIECAM02_Tonemapper" {
 	CGINCLUDE
 	
 	#include "UnityCG.cginc"
-	#include "Appearance_CIECAM02.cginc"
-	#include "Tonemapping_Global_Operators.cginc"
+	#include "AppearanceCIECAM02.cginc"
+	#include "TonemappingGlobalOperators.cginc"
 
 	struct v2f {
 		float4 pos : SV_POSITION;

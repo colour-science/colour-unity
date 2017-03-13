@@ -9,7 +9,7 @@ namespace UnityStandardAssets.ImageEffects
 	[ExecuteInEditMode]
 	[RequireComponent(typeof (Camera))]
 	[AddComponentMenu("Image Effects/Color Adjustments/CIECAM02 Tonemapper")]
-	public class CIECAM02_Tonemapper : PostEffectsBase
+	public class CIECAM02Tonemapper : PostEffectsBase
 	{
 	
 		public Shader shader = null;

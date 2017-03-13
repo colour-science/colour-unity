@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityStandardAssets.ImageEffects;
 
-public class CIECAM02_UI : MonoBehaviour {
+public class CIECAM02UI : MonoBehaviour {
 
 	//	for name, illuminant in sorted(colour.ILLUMINANTS_RELATIVE_SPDS.items()):
 	//		XYZ = colour.spectral_to_XYZ(illuminant)
@@ -63,42 +63,42 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void SetDefaults () {
-		GameObject.Find("Tonemapper_Dropdown").GetComponent<Dropdown>().value = 0;
-		GameObject.Find("Exposure_Slider").GetComponent<Slider>().value = 0.0f;
-		GameObject.Find("Exposure_InputField").GetComponent<InputField>().text = "0.0";
+		GameObject.Find("Tonemapper Dropdown").GetComponent<Dropdown>().value = 0;
+		GameObject.Find("Exposure Slider").GetComponent<Slider>().value = 0.0f;
+		GameObject.Find("Exposure InputField").GetComponent<InputField>().text = "0.0";
 	
 		// Moroney, N. (n.d.). Usage guidelines for CIECAM97s. Defaults for *sRGB* viewing conditions,
 		// assuming 64 lux ambient / 80 cd/m2 CRT and D65 as whitepoint.
-		GameObject.Find("Illuminant_Dropdown").GetComponent<Dropdown>().value = 6;
-		GameObject.Find("XYZ_w_Scale_Slider").GetComponent<Slider>().value = 1.0f;
-		GameObject.Find("XYZ_w_Scale_InputField").GetComponent<InputField>().text = "1.0";
-		GameObject.Find("L_A_Slider").GetComponent<Slider>().value = 4.0f;
-		GameObject.Find("L_A_InputField").GetComponent<InputField>().text = "4.0";
-		GameObject.Find("Y_b_Slider").GetComponent<Slider>().value = 20.0f;
-		GameObject.Find("Y_b_InputField").GetComponent<InputField>().text = "20.0";
-		GameObject.Find("Surround_Dropdown").GetComponent<Dropdown>().value = 0;
-		GameObject.Find("DiscountIlluminant_Toggle").GetComponent<Toggle>().isOn = true;
+		GameObject.Find("Illuminant Dropdown").GetComponent<Dropdown>().value = 6;
+		GameObject.Find("XYZ_w_Scale Slider").GetComponent<Slider>().value = 1.0f;
+		GameObject.Find("XYZ_w_Scale InputField").GetComponent<InputField>().text = "1.0";
+		GameObject.Find("L_A Slider").GetComponent<Slider>().value = 4.0f;
+		GameObject.Find("L_A InputField").GetComponent<InputField>().text = "4.0";
+		GameObject.Find("Y_b Slider").GetComponent<Slider>().value = 20.0f;
+		GameObject.Find("Y_b InputField").GetComponent<InputField>().text = "20.0";
+		GameObject.Find("Surround Dropdown").GetComponent<Dropdown>().value = 0;
+		GameObject.Find("DiscountIlluminant Toggle").GetComponent<Toggle>().isOn = true;
 
-		GameObject.Find("Illuminant_v_Dropdown").GetComponent<Dropdown>().value = 6;
-		GameObject.Find("XYZ_w_v_Scale_Slider").GetComponent<Slider>().value = 1.0f;
-		GameObject.Find("XYZ_w_v_Scale_InputField").GetComponent<InputField>().text = "1.0";
-		GameObject.Find("L_A_v_Slider").GetComponent<Slider>().value = 4.0f;
-		GameObject.Find("L_A_v_InputField").GetComponent<InputField>().text = "4.0";
-		GameObject.Find("Y_b_v_Slider").GetComponent<Slider>().value = 20.0f;
-		GameObject.Find("Y_b_v_InputField").GetComponent<InputField>().text = "20.0";
-		GameObject.Find("Surround_v_Dropdown").GetComponent<Dropdown>().value = 0;
-		GameObject.Find("DiscountIlluminant_v_Toggle").GetComponent<Toggle>().isOn = true;
+		GameObject.Find("Illuminant_v Dropdown").GetComponent<Dropdown>().value = 6;
+		GameObject.Find("XYZ_w_v_Scale Slider").GetComponent<Slider>().value = 1.0f;
+		GameObject.Find("XYZ_w_v_Scale InputField").GetComponent<InputField>().text = "1.0";
+		GameObject.Find("L_A_v Slider").GetComponent<Slider>().value = 4.0f;
+		GameObject.Find("L_A_v InputField").GetComponent<InputField>().text = "4.0";
+		GameObject.Find("Y_b_v Slider").GetComponent<Slider>().value = 20.0f;
+		GameObject.Find("Y_b_v InputField").GetComponent<InputField>().text = "20.0";
+		GameObject.Find("Surround_v Dropdown").GetComponent<Dropdown>().value = 0;
+		GameObject.Find("DiscountIlluminant_v Toggle").GetComponent<Toggle>().isOn = true;
 	}
 
-	private Material _GetCIECAM02Material () {
-		if (Camera.main.GetComponent<CIECAM02_Tonemapper> () != null)
-			return Camera.main.GetComponent<CIECAM02_Tonemapper> ().material;
+	private Material _GetCIECAM02Material() {
+		if (Camera.main.GetComponent<CIECAM02Tonemapper>() != null)
+			return Camera.main.GetComponent<CIECAM02Tonemapper>().material;
 		else
 			return null;
 	}
 
 	public void Set_tonemapper(int value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -106,7 +106,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_exposure(float value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -114,7 +114,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void SetIlluminant(int value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 		
@@ -125,7 +125,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_XYZ_w_scale(float value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -133,7 +133,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_L_A(float value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -141,7 +141,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_Y_b(float value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -149,7 +149,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_surround(int value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -157,7 +157,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_discount_illuminant(bool value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -165,7 +165,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void SetIlluminant_v(int value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -176,7 +176,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_XYZ_w_v_scale(float value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -184,7 +184,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_L_A_v(float value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -192,7 +192,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_Y_b_v(float value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -200,7 +200,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_surround_v(int value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 
@@ -208,7 +208,7 @@ public class CIECAM02_UI : MonoBehaviour {
 	}
 
 	public void Set_discount_illuminant_v(bool value) {
-		Material material = _GetCIECAM02Material ();
+		Material material = _GetCIECAM02Material();
 		if (material == null)
 			return;
 

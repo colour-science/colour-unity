@@ -1,4 +1,4 @@
-﻿Shader "Unlit/Unlit_LDR_Texture"
+﻿Shader "Unlit/Unlit LDR Texture"
 {
 	Properties
 	{

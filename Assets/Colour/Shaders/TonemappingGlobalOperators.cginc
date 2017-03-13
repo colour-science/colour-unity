@@ -1,4 +1,4 @@
-#include "Models_RGB.cginc"
+#include "ModelsRGB.cginc"
 
 float3 tonemapping_operator_simple(float3 RGB) {
 	return RGB / (RGB + 1.0);

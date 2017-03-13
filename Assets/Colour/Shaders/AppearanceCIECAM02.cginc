@@ -1,5 +1,5 @@
-#include "Adaptation_CAT.cginc"
-#include "Utilities_Common.cginc"
+#include "AdaptationCAT.cginc"
+#include "UtilitiesCommon.cginc"
 
 struct CIECAM02_InductionFactors
 {

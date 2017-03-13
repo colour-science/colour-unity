@@ -1,4 +1,4 @@
-﻿Shader "Unlit/Unlit_HDR_Texture"
+﻿Shader "Unlit/Unlit HDR Texture"
 {
 	Properties
 	{
@@ -16,7 +16,7 @@
 			#pragma fragment frag
 
 			#include "UnityCG.cginc"
-			#include "Models_RGB.cginc"
+			#include "ModelsRGB.cginc"
 
 			struct appdata
 			{

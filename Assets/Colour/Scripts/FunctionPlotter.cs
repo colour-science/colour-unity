@@ -5,7 +5,7 @@ namespace UnityStandardAssets.ImageEffects
 {
 	[ExecuteInEditMode]
 	[AddComponentMenu("Image Effects/Function Plotter")]
-	public class Function_Plotter : ImageEffectBase {
+	public class FunctionPlotter : ImageEffectBase {
 		[Range(1.0f, 50.0f)]
 		public float    range;
 
