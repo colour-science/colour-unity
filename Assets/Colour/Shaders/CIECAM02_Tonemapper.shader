@@ -66,7 +66,7 @@ Shader "Camera/CIECAM02_Tonemapper" {
 	int _surround_v;
 	int _discount_illuminant_v;
 
-	v2f vert( appdata_img v ) 
+	v2f vert(appdata_img v) 
 	{
 		v2f o;
 		o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
