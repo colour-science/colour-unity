@@ -102,7 +102,7 @@ public class CIECAM02UI : MonoBehaviour {
 		if (material == null)
 			return;
 
-		material.SetFloat("_tonemapper", value);
+		material.SetInt("_tonemapper", value);
 	}
 
 	public void Set_exposure(float value) {

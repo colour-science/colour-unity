@@ -1,12 +1,19 @@
 ﻿Shader "Camera/Function Plotter" {
 	Properties {
 		_MainTex ("", 2D) = "black" {}
-		[Header(Grid)] _range ("Range", Range (1, 50)) = 10
+		[Header(Grid)] _graph ("Graph", Range (0, 3)) = 0.0
+		_log_base ("Log Base", Range (1, 10)) = 1.0
+		 _min_x ("Min X", Range (-10000, 10000)) = 0.0
+		 _max_x ("Max X", Range (-10000, 10000)) = 10.0
+		 _min_y ("Min Y", Range (-10000, 10000)) = 0.0
+		 _max_y ("Max Y", Range (-10000, 10000)) = 10.0
+		 _grid_opacity ("Grid Opacity", Range (0, 1)) = 0.8
 	}
 	
 	CGINCLUDE
 	
 	#include "UnityCG.cginc"
+	#include "UtilitiesCommon.cginc"
 
 	struct v2f {
 		float4 pos : SV_POSITION;
@@ -16,7 +23,14 @@
 	sampler2D _MainTex;
 	float4 _MainTex_ST;
 
-	float _range;
+	float _graph;
+	float _log_base;
+	float _min_x;
+	float _max_x;
+	float _min_y;
+	float _max_y;
+	float _grid_opacity;
+
 
 	v2f vert( appdata_img v ) 
 	{
@@ -26,38 +40,86 @@
 		return o;
 	}
 
+	float linear_conversion(float x, float in_min, float in_max, float out_min, float out_max)
+	{
+		return (((x - in_min) / (in_max - in_min)) *
+        	(out_max - out_min) + out_min);
+	}
+
+
+	float graph_forward(float x)
+	{
+		if (_log_base == 1)
+			return log(x);
+		else
+			return log(x) / log(_log_base);
+	}
+
+	float2 graph_forward(float2 x)
+	{
+		if (_graph == 1) 
+			return float2(x.x, graph_forward(x.y));
+		if (_graph == 2) 
+			return float2(graph_forward(x.x), x.y);
+		if (_graph == 3) 
+			return float2(graph_forward(x.x), graph_forward(x.y));
+		else
+			return x;
+		
+	}
+
+	float graph_reverse(float x)
+	{
+		if (_log_base == 1)
+			return exp(x);
+		else
+			return pow(_log_base, x);
+	}
+
+	float2 graph_reverse(float2 x)
+	{
+		if (_graph == 1) 
+			return float2(x.x, graph_reverse(x.y));
+		if (_graph == 2) 
+			return float2(graph_reverse(x.x), x.y);
+		if (_graph == 3) 
+			return float2(graph_reverse(x.x), graph_reverse(x.y));
+		else
+			return x;
+	}
+
 	float grid(
-		float2 uv, 
+		float2 uv,
 		float axis_thickness, 
 		float grid_thickness, 
 		float axis_luminance, 
 		float grid_luminance) 
 	{
-		float width = 0.1;
-		float grid_c;
-		grid_c = step(abs(uv.x), axis_thickness) * axis_luminance;
-		grid_c = max(step(abs(uv.y), axis_thickness) * axis_luminance, grid_c);
-		grid_c = max(step(frac(uv.x + grid_thickness / 2.0), grid_thickness) * grid_luminance, grid_c);
-		grid_c = max(step(frac(uv.y + grid_thickness / 2.0), grid_thickness) * grid_luminance, grid_c);
+
+		float2 one_pixel = float2(1.0, 1.0) / _ScreenParams;
+
+		float range_x = (abs(_min_x) + abs(_max_x)) / 2.0;
+		float range_y = (abs(_min_y) + abs(_max_y)) / 2.0;
+//		float compensate_u = graph_forward(uv.x);
+//		float compensate_v = graph_forward(uv.y);
+
+		float axis_t_x = axis_thickness * one_pixel * range_x;
+		float axis_t_y = axis_thickness * one_pixel * range_y;
+		float grid_t_x = grid_thickness * one_pixel * range_x ;//* compensate_u;
+		float grid_t_y = grid_thickness * one_pixel * range_y ;//* compensate_v;
+
+		float grid_c = 0.0;
+		grid_c = step(uv.x, axis_t_x) * axis_luminance;
+		grid_c = max(step(uv.y, axis_t_y) * axis_luminance, grid_c);
+		grid_c = max(step(frac(uv.x), grid_t_x) * axis_luminance, grid_c);
+		grid_c = max(step(frac(uv.y), grid_t_y) * axis_luminance, grid_c);
 
 		return grid_c;
 	}
 
 	float FUNCTION(float x) 
 	{
-			  return sin(x*x*x)*sin(x);
-	//  return sin(x*x*x)*sin(x) + 0.1*sin(x*x);
-	//	return sin(x);
-	}
-	 
-	//note: does one sample per x, thresholds on distance in y
-	float discreteEval( float2 uv ) {
-	  const float threshold = 0.005;
-	  float x = uv.x;
-	  float fx = FUNCTION(x);
-	  float dist = abs( uv.y - fx );
-	  float hit = step( dist, threshold );
-	  return hit;
+		return x;
 	}
 
 	float function_multisample(float2 uv, float thickness, float gain, float exponent)
@@ -86,18 +148,28 @@
 	float4 function_plotter(v2f i) : SV_Target
 	{
 		float4 RGBA = tex2D(_MainTex, UnityStereoScreenSpaceUVAdjust(i.uv, _MainTex_ST));
-
-		float aspect_ratio = _ScreenParams.x / _ScreenParams.y;
-		float _range_d = _range / 2.0;
-		float2 uv = i.uv * float2(_range, _range / aspect_ratio) - float2(_range_d, _range_d / aspect_ratio);
+		float2 uv = float2(
+			linear_conversion(
+				graph_reverse(float2(i.uv.x, 1.0)).x, 
+				graph_reverse(float2(0.0, 0.0)).x, 
+				graph_reverse(float2(1.0, 1.0)).x, 
+				_min_x, 
+				_max_x), 
+			linear_conversion(
+				graph_reverse(float2(1.0, i.uv.y)).y, 
+				graph_reverse(float2(0.0, 0.0)).y, 
+				graph_reverse(float2(1.0, 1.0)).y, 
+				_min_y, 
+				_max_y));
 
 		float grid_c = grid(
-			uv, 
-			10.0 / _ScreenParams.x * _range_d, 
-			5.0 / _ScreenParams.x * _range_d, 
+			uv,
+			10.0, 
+			10.0, 
 			1.0, 
-			0.5);
-		float4 function_c = float4(function_multisample(uv * float2(sin(_Time.g), 1.0), 0.25, 2.0, 0.8), 0.0, 0.0, 1.0);
+			0.5) * _grid_opacity;
+
+		float4 function_c = float4(function_multisample(uv, 0.25, 2.0, 0.8), 0.0, 0.0, 1.0);
 
 		float4 RGB_o = float4(RGBA.r + grid_c + function_c.r, RGBA.g + grid_c, RGBA.b + grid_c, RGBA.a);
 

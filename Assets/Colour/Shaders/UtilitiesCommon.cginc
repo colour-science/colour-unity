@@ -1,1 +1,2 @@
 #define PI 3.14159265359
+#define EPSILON 0.0000001
