@@ -7,7 +7,15 @@
 		 _max_x ("Max X", Range (-10000, 10000)) = 10.0
 		 _min_y ("Min Y", Range (-10000, 10000)) = 0.0
 		 _max_y ("Max Y", Range (-10000, 10000)) = 10.0
-		 _grid_opacity ("Grid Opacity", Range (0, 1)) = 0.8
+		 _ticks_x ("Ticks X", Range (1, 100)) = 10
+		 _ticks_y ("Ticks Y", Range (1, 100)) = 10
+		 _axis_thickness ("Axis Thickness", Range (1, 40)) = 10.0
+		 _ticks_thickness ("Ticks Thickness", Range (1, 40)) = 5.0
+		 _axis_opacity ("Axis Opacity", Range (0, 1)) = 0.5
+		 _ticks_opacity ("Ticks Opacity", Range (0, 1)) = 0.05
+		 _function_thickness ("Function Thickness", Range (1, 40)) = 0.05
+		 _function_opacity ("Function Opacity", Range (0, 1)) = 1.0
+
 	}
 	
 	CGINCLUDE
@@ -29,8 +37,14 @@
 	float _max_x;
 	float _min_y;
 	float _max_y;
-	float _grid_opacity;
-
+	int _ticks_x;
+	int _ticks_y;
+	float _axis_thickness;
+	float _ticks_thickness;
+	float _axis_opacity;
+	float _ticks_opacity;
+	float _function_thickness;
+	float _function_opacity;
 
 	v2f vert( appdata_img v ) 
 	{
@@ -39,13 +53,6 @@
 		o.uv = v.texcoord.xy;
 		return o;
 	}
-
-	float linear_conversion(float x, float in_min, float in_max, float out_min, float out_max)
-	{
-		return (((x - in_min) / (in_max - in_min)) *
-        	(out_max - out_min) + out_min);
-	}
-
 
 	float graph_forward(float x)
 	{
@@ -88,33 +95,39 @@
 			return x;
 	}
 
-	float grid(
+	float axes(
 		float2 uv,
+		float range_x,
+		float range_y,
+		int ticks_x,
+		int ticks_y,
 		float axis_thickness, 
-		float grid_thickness, 
+		float ticks_thickness, 
 		float axis_luminance, 
-		float grid_luminance) 
+		float ticks_luminance) 
 	{
+		float range_x_h = range_x / 2.0;
+		float range_y_h = range_y / 2.0;
+		float ticks_x_r = range_x / float(ticks_x);
+		float ticks_y_r = range_y / float(ticks_y);
 
 		float2 one_pixel = float2(1.0, 1.0) / _ScreenParams;
 
-		float range_x = (abs(_min_x) + abs(_max_x)) / 2.0;
-		float range_y = (abs(_min_y) + abs(_max_y)) / 2.0;
-//		float compensate_u = graph_forward(uv.x);
-//		float compensate_v = graph_forward(uv.y);
+		float axis_t_x = axis_thickness * one_pixel.x * range_x_h;
+		float axis_t_y = axis_thickness * one_pixel.y * range_y_h;
+		float axis_t_x_h = axis_t_x / 2.0;
+		float axis_t_y_h = axis_t_y / 2.0;
+		float ticks_t_x = ticks_thickness * one_pixel.x * range_x_h;
+		float ticks_t_y = ticks_thickness * one_pixel.y * range_y_h;
+		float ticks_t_x_h = ticks_t_x / 2.0;
+		float ticks_t_y_h = ticks_t_y / 2.0;
 
-		float axis_t_x = axis_thickness * one_pixel * range_x;
-		float axis_t_y = axis_thickness * one_pixel * range_y;
-		float grid_t_x = grid_thickness * one_pixel * range_x ;//* compensate_u;
-		float grid_t_y = grid_thickness * one_pixel * range_y ;//* compensate_v;
-
-		float grid_c = 0.0;
-		grid_c = step(uv.x, axis_t_x) * axis_luminance;
-		grid_c = max(step(uv.y, axis_t_y) * axis_luminance, grid_c);
-		grid_c = max(step(frac(uv.x), grid_t_x) * axis_luminance, grid_c);
-		grid_c = max(step(frac(uv.y), grid_t_y) * axis_luminance, grid_c);
-
-		return grid_c;
+		float axes_c = step(uv.x + axis_t_x_h, axis_t_x) * axis_luminance;
+		axes_c = max(step(uv.y + axis_t_y_h, axis_t_y) * axis_luminance, axes_c);
+		axes_c = max(step(frac((uv.x + ticks_t_x_h) / ticks_x_r), ticks_t_x / ticks_x_r) * ticks_luminance, axes_c);
+		axes_c = max(step(frac((uv.y + ticks_t_y_h) / ticks_y_r), ticks_t_y / ticks_y_r) * ticks_luminance, axes_c);
+			
+		return axes_c;
 	}
 
 	float FUNCTION(float x) 
@@ -122,33 +135,28 @@
 		return x;
 	}
 
-	float function_multisample(float2 uv, float thickness, float gain, float exponent)
+	float function_sample(
+		float2 uv,
+		float range_x,
+		float range_y,
+		float thickness,
+		float function_luminance)
 	{
-		// https://www.shadertoy.com/view/4sB3zz
-		float aspect_ratio = _ScreenParams.x / _ScreenParams.y;
+	  float range_xy = (range_x + range_y) / 2.0;
 
-		const int samples = 255;
-		const float samples_f = float(samples);
-		float2 max_distance = float2(thickness / 10.0, thickness / 10.0) * float2(aspect_ratio, 1.0);
-		float2 half_max_distance = float2(thickness, thickness) * max_distance;
-		float step_size = max_distance.x / samples_f;
-		float initial_offset_x = -0.5 * samples_f * step_size;
-		uv.x += initial_offset_x;
-		float accumulate = 0.0;
-		for(int i=0; i<samples; ++i)
-		{
-			float x = uv.x + step_size * float(i);
-			float y = uv.y;
-			float f_x = FUNCTION(x);
-			accumulate += step(abs(y - f_x), half_max_distance.y);
-		}
-		return gain * pow(accumulate / samples_f, exponent);
+	  float x = uv.x;
+	  float f_x = FUNCTION(x);
+	  float distance_f = (1.0 - abs(uv.y - f_x));
+	  // Arbitrary scaling to approximate axes visual style.
+	  float function_t = linear_conversion(thickness / 2.0, 1.0, 40.0, 0.9975, 0.975);
+	  float function = smoothstep((1.0 - range_xy) + (function_t * range_xy), 1.0, distance_f);
+	  return clamp(thickness * function * function_luminance, 0.0, 1.0);
 	}
 
 	float4 function_plotter(v2f i) : SV_Target
 	{
 		float4 RGBA = tex2D(_MainTex, UnityStereoScreenSpaceUVAdjust(i.uv, _MainTex_ST));
-		float2 uv = float2(
+		float2 uv_f = float2(
 			linear_conversion(
 				graph_reverse(float2(i.uv.x, 1.0)).x, 
 				graph_reverse(float2(0.0, 0.0)).x, 
@@ -162,16 +170,44 @@
 				_min_y, 
 				_max_y));
 
-		float grid_c = grid(
-			uv,
-			10.0, 
-			10.0, 
-			1.0, 
-			0.5) * _grid_opacity;
+//		float2 uv_r = graph_forward(float2(
+//			linear_conversion(
+//				i.uv.x, 
+//				_min_x,
+//				_max_x,
+//				graph_reverse(float2(0.0, 0.0)).x, 
+//				graph_reverse(float2(1.0, 1.0)).x), 
+//			linear_conversion(
+//				i.uv.y, 
+//				_min_y,
+//				_max_y,
+//				graph_reverse(float2(0.0, 0.0)).y, 
+//				graph_reverse(float2(1.0, 1.0)).y)));
 
-		float4 function_c = float4(function_multisample(uv, 0.25, 2.0, 0.8), 0.0, 0.0, 1.0);
+		float range_x = abs(_min_x) + abs(_max_x);
+		float range_y = abs(_min_y) + abs(_max_y);
 
-		float4 RGB_o = float4(RGBA.r + grid_c + function_c.r, RGBA.g + grid_c, RGBA.b + grid_c, RGBA.a);
+		float axes_c = axes(
+			uv_f,
+			range_x,
+			range_y,
+			_ticks_x,
+			_ticks_y,
+			_axis_thickness, 
+			_ticks_thickness, 
+			_axis_opacity, 
+			_ticks_opacity);
+				
+		float4 function_c = float4(
+			function_sample(
+				uv_f, 
+				range_x, 
+				range_y, 
+				_function_thickness, 
+				_function_opacity), 
+			0.0, 0.0, 1.0);
+
+		float4 RGB_o = float4(RGBA.r + axes_c + function_c.r, RGBA.g + axes_c, RGBA.b + axes_c, RGBA.a);
 
 		return RGB_o;
 
