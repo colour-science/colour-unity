@@ -42,6 +42,22 @@ namespace UnityStandardAssets.ImageEffects
 		[Range(0.0f, 1.0f)]
 		public float functionOpacity;
 
+		[Header("Function (Controls)")]
+		[Range(-10.0f, 10.0f)]
+		public float a;
+		[Range(-10.0f, 10.0f)]
+		public float b;
+		[Range(-10.0f, 10.0f)]
+		public float c;
+		[Range(-10.0f, 10.0f)]
+		public float d;
+		[Range(-10.0f, 10.0f)]
+		public float e;
+
+		[Header("Image (Visual)")]
+		[Range(0.0f, 1.0f)]
+		public float imageOpacity;
+
 		// Called by camera to apply image effect
 		void OnRenderImage (RenderTexture source, RenderTexture destination) 
 		{
@@ -62,6 +78,14 @@ namespace UnityStandardAssets.ImageEffects
 
 			material.SetFloat("_function_thickness", functionThickness);
 			material.SetFloat("_function_opacity", functionOpacity);
+
+			material.SetFloat("_a", a);
+			material.SetFloat("_b", b);
+			material.SetFloat("_c", c);
+			material.SetFloat("_d", d);
+			material.SetFloat("_e", e);
+
+			material.SetFloat("_image_opacity", imageOpacity);
 
 			Graphics.Blit (source, destination, material);
 		}

@@ -3,24 +3,31 @@
 		_MainTex ("", 2D) = "black" {}
 		[Header(Grid)] _graph ("Graph", Range (0, 3)) = 0.0
 		_log_base ("Log Base", Range (1, 10)) = 1.0
-		 _min_x ("Min X", Range (-10000, 10000)) = 0.0
-		 _max_x ("Max X", Range (-10000, 10000)) = 10.0
-		 _min_y ("Min Y", Range (-10000, 10000)) = 0.0
-		 _max_y ("Max Y", Range (-10000, 10000)) = 10.0
-		 _ticks_x ("Ticks X", Range (1, 100)) = 10
-		 _ticks_y ("Ticks Y", Range (1, 100)) = 10
+		 _min_x ("Min X", Range (-65535, 65535)) = 0.0
+		 _max_x ("Max X", Range (-65535, 65535)) = 10.0
+		 _min_y ("Min Y", Range (-65535, 65535)) = 0.0
+		 _max_y ("Max Y", Range (-65535, 65535)) = 10.0
+		 _ticks_x ("Ticks X", Range (0, 65535)) = 10
+		 _ticks_y ("Ticks Y", Range (9, 65535)) = 10
 		 _axis_thickness ("Axis Thickness", Range (1, 40)) = 10.0
 		 _ticks_thickness ("Ticks Thickness", Range (1, 40)) = 5.0
 		 _axis_opacity ("Axis Opacity", Range (0, 1)) = 0.5
 		 _ticks_opacity ("Ticks Opacity", Range (0, 1)) = 0.05
 		 _function_thickness ("Function Thickness", Range (1, 40)) = 0.05
 		 _function_opacity ("Function Opacity", Range (0, 1)) = 1.0
+		 _a ("a", Range (-65535, 65535)) = 1.0
+		 _b ("b", Range (-65535, 65535)) = 1.0
+		 _c ("c", Range (-10000, 65535)) = 1.0
+		 _d ("d", Range (-65535, 65535)) = 1.0
+		 _e ("e", Range (-65535, 65535)) = 1.0
+		 _image_opacity ("Image Opacity", Range (0, 1)) = 1.0
 
 	}
 	
 	CGINCLUDE
 	
 	#include "UnityCG.cginc"
+	#include "TonemappingGlobalOperators.cginc"
 	#include "UtilitiesCommon.cginc"
 
 	struct v2f {
@@ -45,6 +52,12 @@
 	float _ticks_opacity;
 	float _function_thickness;
 	float _function_opacity;
+	float _a;
+	float _b;
+	float _c;
+	float _d;
+	float _e;
+	float _image_opacity;
 
 	v2f vert( appdata_img v ) 
 	{
@@ -130,29 +143,41 @@
 		return axes_c;
 	}
 
-	float FUNCTION(float x) 
+	float3 FUNCTION(float3 x) 
 	{
-		return x;
+//		return _a * x + _b;
+//		return sin(x * _a * _b * _c);
+		return tonemapping_operator_filmic(x, _a, _b, _c, _d, _e);
 	}
 
 	float function_sample(
-		float2 uv,
-		float range_x,
-		float range_y,
-		float thickness,
-		float function_luminance)
+		float2 uv, 
+		float range_x, 
+		float range_y, 
+		float thickness, 
+		float function_luminance, 
+		int samples)
 	{
-	  float range_xy = (range_x + range_y) / 2.0;
+		// https://www.shadertoy.com/view/4sB3zz
 
-	  float x = uv.x;
-	  float f_x = FUNCTION(x);
-	  float distance_f = (1.0 - abs(uv.y - f_x));
-	  // Arbitrary scaling to approximate axes visual style.
-	  float function_t = linear_conversion(thickness / 2.0, 1.0, 40.0, 0.9975, 0.975);
-	  float function = smoothstep((1.0 - range_xy) + (function_t * range_xy), 1.0, distance_f);
-	  return clamp(thickness * function * function_luminance, 0.0, 1.0);
+		float2 one_pixel = float2(1.0, 1.0) / _ScreenParams;
+		const float samples_f = float(samples);
+		float thickness_t = linear_conversion(thickness, 1.0, 40.0, 0.5, 3.0);
+		float2 max_distance = float2(thickness_t, thickness_t) * one_pixel * float2(range_x, range_y);
+		float2 max_distance_h = float2(thickness_t, thickness_t) * max_distance;
+		float step_size = max_distance.x / samples_f;
+		float initial_offset_x = -0.5 * samples_f * step_size;
+		uv.x += initial_offset_x;
+		float accumulate = 0.0;
+		for(int i=0; i<samples; ++i)
+		{
+			float x = uv.x + step_size * float(i);
+			float y = uv.y;
+			float f_x = FUNCTION(x);
+			accumulate += step(abs(y - f_x), max_distance_h.y);
+		}
+		return accumulate / samples_f * function_luminance;
 	}
-
 	float4 function_plotter(v2f i) : SV_Target
 	{
 		float4 RGBA = tex2D(_MainTex, UnityStereoScreenSpaceUVAdjust(i.uv, _MainTex_ST));
@@ -170,19 +195,19 @@
 				_min_y, 
 				_max_y));
 
-//		float2 uv_r = graph_forward(float2(
-//			linear_conversion(
-//				i.uv.x, 
-//				_min_x,
-//				_max_x,
-//				graph_reverse(float2(0.0, 0.0)).x, 
-//				graph_reverse(float2(1.0, 1.0)).x), 
-//			linear_conversion(
-//				i.uv.y, 
-//				_min_y,
-//				_max_y,
-//				graph_reverse(float2(0.0, 0.0)).y, 
-//				graph_reverse(float2(1.0, 1.0)).y)));
+		float2 uv_r = graph_forward(float2(
+			linear_conversion(
+				i.uv.x, 
+				_min_x,
+				_max_x,
+				graph_reverse(float2(0.0, 0.0)).x, 
+				graph_reverse(float2(1.0, 1.0)).x), 
+			linear_conversion(
+				i.uv.y, 
+				_min_y,
+				_max_y,
+				graph_reverse(float2(0.0, 0.0)).y, 
+				graph_reverse(float2(1.0, 1.0)).y)));
 
 		float range_x = abs(_min_x) + abs(_max_x);
 		float range_y = abs(_min_y) + abs(_max_y);
@@ -200,14 +225,17 @@
 				
 		float4 function_c = float4(
 			function_sample(
-				uv_f, 
+				uv_f,
 				range_x, 
 				range_y, 
 				_function_thickness, 
-				_function_opacity), 
+				_function_opacity,
+				64), 
 			0.0, 0.0, 1.0);
 
-		float4 RGB_o = float4(RGBA.r + axes_c + function_c.r, RGBA.g + axes_c, RGBA.b + axes_c, RGBA.a);
+		
+		float4 RGB_o = float4(FUNCTION(RGBA.rgb), RGBA.a) * _image_opacity;
+		RGB_o = float4(RGB_o.r + axes_c + function_c.r, RGB_o.g + axes_c, RGB_o.b + axes_c, RGBA.a);
 
 		return RGB_o;
 
