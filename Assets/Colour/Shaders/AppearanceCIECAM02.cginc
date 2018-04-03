@@ -13,7 +13,7 @@ static const CIECAM02_InductionFactors CIECAM02_VIEWING_CONDITIONS_AVERAGE = {
 };
 
 static const CIECAM02_InductionFactors CIECAM02_VIEWING_CONDITIONS_DIM = {
-    0.9, 0.59, 0.95
+    0.9, 0.59, 0.9
 };
 
 static const CIECAM02_InductionFactors CIECAM02_VIEWING_CONDITIONS_DARK = {
@@ -49,7 +49,7 @@ float luminance_level_adaptation_factor(float L_A) {
 	float k = 1.0 / (5.0 * L_A + 1.0);
 	float k4 = pow(k, 4.0);
 
-	float F_L = (0.2 * k4 * (5.0 * L_A) + 0.1 * pow((1.0 - k4), 2.0) * 
+	float F_L = (0.2 * k4 * (5.0 * L_A) + 0.1 * pow((1.0 - k4), 2.0) *
 		pow((5.0 * L_A), (1.0 / 3.0)));
 
 	return F_L;
@@ -149,7 +149,7 @@ float2 opponent_colour_dimensions_reverse(float3 P_n, float h) {
     	a = b * (cos_hr / sin_hr);
 
     if (abs(sin_hr) < abs(cos_hr))
-    	a = (n / (P_5 + (2.0 + P_3) * (220.0 / 1403.0) - 
+    	a = (n / (P_5 + (2.0 + P_3) * (220.0 / 1403.0) -
     		((27.0 / 1403.0) - P_3 * (6300.0 / 1403.0)) * (sin_hr / cos_hr)));
 
     if (abs(sin_hr) < abs(cos_hr))
@@ -313,7 +313,7 @@ CIECAM02_Specification XYZ_to_CIECAM02(float3 XYZ,
         RGB_p, F_L);
     float3 RGB_aw = post_adaptation_non_linear_response_compression_forward(
         RGB_pw, F_L);
- 
+
     // Converting to preliminary cartesian coordinates.
     float2 ab = opponent_colour_dimensions_forward(RGB_a);
 
@@ -410,7 +410,7 @@ float3 CIECAM02_to_XYZ(float J,
     // Computing post-adaptation non linear response compression matrix.
     float3 RGB_a = post_adaptation_non_linear_response_compression_matrix(
         P_n.g, ab);
- 
+
     // Applying reverse post-adaptation non linear response compression.
     float3 RGB_p = post_adaptation_non_linear_response_compression_reverse(
         RGB_a, F_L);
@@ -425,5 +425,5 @@ float3 CIECAM02_to_XYZ(float J,
     // tristimulus values.
     float3 XYZ = mul(CAT02_INVERSE_CAT, RGB);
 
-    return XYZ;   
+    return XYZ;
 }
