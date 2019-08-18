@@ -12,7 +12,7 @@ static const float3x3 XYZ_TO_sRGB_MATRIX = {
     0.055710120445511, -0.204021050598487, 1.056995942254388
 };
 
-float oetf_sRGB_scalar(float L) {
+float eotf_reverse_sRGB_scalar(float L) {
 	float V = 1.055 * (pow(L, 1.0 / 2.4)) - 0.055;
 
 	if (L <= 0.0031308)
@@ -21,14 +21,14 @@ float oetf_sRGB_scalar(float L) {
 	return V;
 }
 
-float3 oetf_sRGB(float3 L) {
-	return float3(oetf_sRGB_scalar(L.r), oetf_sRGB_scalar(L.g), oetf_sRGB_scalar(L.b));
+float3 eotf_reverse_sRGB(float3 L) {
+	return float3(eotf_reverse_sRGB_scalar(L.r), eotf_reverse_sRGB_scalar(L.g), eotf_reverse_sRGB_scalar(L.b));
 }
 
 float eotf_sRGB_scalar(float V) {
 	float L = pow((V + 0.055) / 1.055, 2.4);
 
-	if (V <= oetf_sRGB_scalar(0.0031308))
+	if (V <= eotf_reverse_sRGB_scalar(0.0031308))
 		L = V / 12.92;
 
 	return L;
@@ -90,7 +90,7 @@ static const ST2084_Constants ST2084_CONSTANTS = {
     2392.0 / 4096.0 * 32.0
 };
 
-float3 oetf_ST2084(float3 C, float L_p) {
+float3 eotf_reverse_ST2084(float3 C, float L_p) {
     float3 Y_p = pow(C / L_p, ST2084_CONSTANTS.m_1);
 
     float3 N = pow((ST2084_CONSTANTS.c_1 + ST2084_CONSTANTS.c_2 * Y_p) / 

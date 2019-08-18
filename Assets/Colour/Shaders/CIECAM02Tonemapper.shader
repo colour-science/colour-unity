@@ -121,7 +121,7 @@ Shader "Camera/CIECAM02 Tonemapper" {
 		if (_tonemapper == 4)
 			// Unity does not expose any mechanism to deactivate the framebuffer *sRGB*
 			// conversion, thus we compensate for it here.
-			RGB_v = eotf_sRGB(oetf_ST2084(mul(sRGB_TO_REC2020_MATRIX, RGB_v), 10000.0));
+			RGB_v = eotf_sRGB(eotf_reverse_ST2084(mul(sRGB_TO_REC2020_MATRIX, RGB_v), 10000.0));
 	
 		return float4(RGB_v, 1.0);
 	}
